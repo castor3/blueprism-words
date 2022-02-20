@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using BluePrism.Words.Domain.Services;
 using FluentAssertions;
 using NSubstitute;
 using Xunit;
@@ -41,9 +42,4 @@ public class WordPuzzleServiceTests
             .And.NotContain(start)
             .And.NotContain(end);
     }
-}
-
-internal interface IWordPuzzleService
-{
-    IEnumerable<string> GetShortestNumberOfStepsBetweenWords(string start, string end);
 }
