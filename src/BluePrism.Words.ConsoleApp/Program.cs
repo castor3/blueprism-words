@@ -1,9 +1,12 @@
-﻿using Cocona;
+﻿using BluePrism.Words.Domain.Services;
+using BluePrism.Words.Infrastructure.Services;
+using Cocona;
 using Cocona.Builder;
+using Microsoft.Extensions.DependencyInjection;
 
 CoconaAppBuilder builder = CoconaApp.CreateBuilder();
 
-// app configuration
+builder.Services.AddSingleton<IWordPuzzleService, WordPuzzleService>();
 
 CoconaApp app = builder.Build();
 
