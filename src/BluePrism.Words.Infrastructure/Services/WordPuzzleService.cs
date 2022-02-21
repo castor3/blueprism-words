@@ -25,51 +25,76 @@ internal class WordPuzzleService : IWordPuzzleService
             return Array.Empty<string>();
         }
 
-        string[] dictionary = File.ReadAllLines(filePath);
+        string start = options.Start;
+        string end = options.End;
 
-        var validWords = SameLengthWords(start, dictionary).ToList();
+        if (start.Equals(end, StringComparison.InvariantCultureIgnoreCase))
+        {
+            return new[] { start };
+        }
+
+        var validWords = GetSameLengthWords(start, options.Dictionary).ToList();
 
         var similarWordsFromStart = FindOneCharDiffWords(start, validWords).ToList();
         var similarWordsFromEnd = FindOneCharDiffWords(end, validWords).ToList();
         var firstPermutation = similarWordsFromEnd.Intersect(similarWordsFromStart).ToList();
+        var isStartAndEndOneCharDiff = firstPermutation.Contains(start) || firstPermutation.Contains(end);
+        if (isStartAndEndOneCharDiff)
+        {
+            return new[] { start, end };
+        }
+
         if (firstPermutation.Count == 1)
         {
             return new[] { start, firstPermutation.Single(), end };
         }
 
-        if (firstPermutation.Contains(start) && firstPermutation.Contains(end))
-        {
-            return new[] { start, end };
-        }
-
         var narrowerResultsStart = FindOneCharDiffWords(similarWordsFromStart, validWords).ToList();
         var narrowerResultsEnd = FindOneCharDiffWords(similarWordsFromEnd, validWords).ToList();
-        string? middleWord = narrowerResultsStart.Intersect(narrowerResultsEnd).SingleOrDefault();
-        if (middleWord is null)
+        var middleWords = narrowerResultsStart.Intersect(narrowerResultsEnd).ToList();
+        if (middleWords.Count == 2)
         {
-            _logger.LogWarning("Failed to calculate.");
-            return Array.Empty<string>();
+            var result = new List<string>();
+            result.Add(start);
+            result.AddRange(middleWords);
+            result.Add(end);
+            return result;
         }
 
-        string similarWordMidStart = FindMostSimilarWord(end, similarWordsFromStart);
-        string similarWordMidEnd = FindMostSimilarWord(start, similarWordsFromEnd);
+        string nextStep = FindMostSimilarWord(end, similarWordsFromStart);
+        string lastStep = FindMostSimilarWord(start, similarWordsFromEnd);
+        if (nextStep.Equals(lastStep, StringComparison.InvariantCultureIgnoreCase))
+        {
+            return new[] { start, nextStep, end };
+        }
 
-        return new[] { start, similarWordMidStart, middleWord, similarWordMidEnd, end };
+        bool notHasMiddleWord = middleWords.Any(x =>
+            x.Equals(nextStep, StringComparison.InvariantCultureIgnoreCase) ||
+            x.Equals(lastStep, StringComparison.InvariantCultureIgnoreCase));
+
+        if (notHasMiddleWord)
+        {
+            return new[] { start, nextStep, lastStep, end };
+        }
+
+        return new[] { start, nextStep, middleWords.Single(), lastStep, end };
     }
 
-    private static IEnumerable<string> SameLengthWords(string word, IEnumerable<string> dictionary)
+    private static IEnumerable<string> GetSameLengthWords(string word, IEnumerable<string> dictionary)
     {
         return dictionary.Where(str => str.Length == word.Length);
     }
 
-    private static string FindMostSimilarWord(string word, IEnumerable<string> listToCompare)
+    private static string FindMostSimilarWord(string word, List<string> listToCompare)
     {
         var results = new Dictionary<string, int>();
-        foreach (string wordToCompare in listToCompare)
-        {
-            int similarChars = word.Where((endWordChar, i) => endWordChar == wordToCompare[i]).Count();
 
-            results.Add(wordToCompare, similarChars);
+        // ReSharper disable once ForCanBeConvertedToForeach
+        for (int i = 0; i < listToCompare.Count; i++)
+        {
+            int similarChars = word.Where((endWordChar, index) => endWordChar == listToCompare[i][index]).Count();
+
+            results.Add(listToCompare[i], similarChars);
         }
 
         return results.OrderByDescending(x => x.Value).First().Key;
@@ -80,13 +105,14 @@ internal class WordPuzzleService : IWordPuzzleService
         return listToCompare.Where(word => IsOneCharDifferent(original, word));
     }
 
-    private static IEnumerable<string> FindOneCharDiffWords(IEnumerable<string> originalWords, IReadOnlyCollection<string> listToCompare)
+    private static IEnumerable<string> FindOneCharDiffWords(IReadOnlyList<string> originalWords, IReadOnlyCollection<string> listToCompare)
     {
         List<string> candidates = new();
 
-        foreach (string original in originalWords)
+        // ReSharper disable once ForCanBeConvertedToForeach
+        for (int i = 0; i < originalWords.Count; i++)
         {
-            candidates.AddRange(listToCompare.Where(word => IsOneCharDifferent(original, word)));
+            candidates.AddRange(listToCompare.Where(word => IsOneCharDifferent(originalWords[i], word)));
         }
 
         return candidates;
@@ -111,6 +137,6 @@ internal class WordPuzzleService : IWordPuzzleService
             differentChar++;
         }
 
-        return differentChar != 0;
+        return true;
     }
 }
