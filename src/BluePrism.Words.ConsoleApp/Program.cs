@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 CoconaAppBuilder builder = CoconaApp.CreateBuilder();
 
 builder.Services.AddSingleton<IWordPuzzleService, WordPuzzleService>();
+builder.Services.AddSingleton<IDictionaryHandler, DictionaryHandler>();
 
 CoconaApp app = builder.Build();
 
