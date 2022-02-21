@@ -1,10 +1,13 @@
 ﻿using Ardalis.GuardClauses;
+using BluePrism.Words.Domain.Models;
 using BluePrism.Words.Domain.Services;
+using BluePrism.Words.Infrastructure.ModelValidators;
+using FluentValidation.Results;
 using Microsoft.Extensions.Logging;
 
 namespace BluePrism.Words.Infrastructure.Services;
 
-public class WordPuzzleService : IWordPuzzleService
+internal class WordPuzzleService : IWordPuzzleService
 {
     private readonly ILogger<WordPuzzleService> _logger;
 
@@ -13,15 +16,13 @@ public class WordPuzzleService : IWordPuzzleService
         _logger = Guard.Against.Null(logger);
     }
 
-    public IEnumerable<string> GetShortestNumberOfStepsBetweenWords(string start, string end, string filePath)
+    public IEnumerable<string> GetShortestNumberOfStepsBetweenWords(StepsBetweenWordsOptions options)
     {
-        Guard.Against.NullOrWhiteSpace(start, nameof(start));
-        Guard.Against.NullOrWhiteSpace(end, nameof(end));
-        Guard.Against.NullOrWhiteSpace(filePath, nameof(filePath));
-
-        if (start.Equals(end, StringComparison.Ordinal))
+        ValidationResult validationResult = new StepsBetweenWordsOptionsValidator().Validate(options);
+        if (!validationResult.IsValid)
         {
-            return new[] { start };
+            _logger.LogWarning("Invalid parameters {@Options}.", options);
+            return Array.Empty<string>();
         }
 
         string[] dictionary = File.ReadAllLines(filePath);

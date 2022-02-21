@@ -1,6 +1,8 @@
-﻿namespace BluePrism.Words.Domain.Services;
+﻿using BluePrism.Words.Domain.Models;
+
+namespace BluePrism.Words.Domain.Services;
 
 public interface IWordPuzzleService
 {
-    IEnumerable<string> GetShortestNumberOfStepsBetweenWords(string start, string end, string filePath);
+    IEnumerable<string> GetShortestNumberOfStepsBetweenWords(StepsBetweenWordsOptions options);
 }
