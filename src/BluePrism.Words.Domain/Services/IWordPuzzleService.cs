@@ -2,5 +2,5 @@
 
 public interface IWordPuzzleService
 {
-    IEnumerable<string> GetShortestNumberOfStepsBetweenWords(string start, string end);
+    IEnumerable<string> GetShortestNumberOfStepsBetweenWords(string start, string end, string filePath);
 }

@@ -22,7 +22,7 @@ public class WordPuzzleServiceTests
     [InlineData("12345", "12345")]
     public void GetShortestNumberOfStepsBetweenWords_Should_Throw_Exception_If_Words_Are_Longer_Than_4_Chars(string start, string end)
     {
-        Action act = () => _wordPuzzleService.GetShortestNumberOfStepsBetweenWords(start, end);
+        Action act = () => _wordPuzzleService.GetShortestNumberOfStepsBetweenWords(start, end, "");
 
         act.Should()
             .ThrowExactly<ArgumentException>()
@@ -35,7 +35,7 @@ public class WordPuzzleServiceTests
         const string start = "hide";
         const string end = "sort";
         
-        IEnumerable<string> sequence = _wordPuzzleService.GetShortestNumberOfStepsBetweenWords(start, end);
+        IEnumerable<string> sequence = _wordPuzzleService.GetShortestNumberOfStepsBetweenWords(start, end, "");
 
         sequence.Should()
             .NotBeNullOrEmpty()
