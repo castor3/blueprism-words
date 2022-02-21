@@ -1,18 +1,24 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-    </PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\BluePrism.Words.Domain\BluePrism.Words.Domain.csproj" />
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Ardalis.GuardClauses" Version="4.0.0"/>
+    <PackageReference Include="FluentValidation" Version="10.3.6"/>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0"/>
+  </ItemGroup>
 
-    <ItemGroup>
-      <PackageReference Include="Ardalis.GuardClauses" Version="4.0.0" />
-      <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0" />
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BluePrism.Words.Domain\BluePrism.Words.Domain.csproj"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="BluePrism.Words.ConsoleApp"/>
+    <InternalsVisibleTo Include="$(AssemblyName).Tests.Unit"/>
+  </ItemGroup>
 
 </Project>
